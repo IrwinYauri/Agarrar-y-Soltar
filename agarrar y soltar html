@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.slim.min.js"></script>
+</head>
+<style type="text/css">
+  #gate {
+    cursor: pointer;
+    margin-bottom: 100px;
+    width: 83px;
+    height: 46px;
+  }
+
+  .ball {
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+  }
+</style>
+<body>
+
+  <p>Drag the ball.</p>
+
+  <div id="caja_1" style="height: 100px;  border:1px solid black;" class="droppable">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBXRK3kWrbN2qCsHQfRe2hCODyFox9XbDWMg&s" id="ball_1" class="ball">
+  </div>
+  <div id="caja_2" style="height: 100px;  border:1px solid black;" class="droppable">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwGZH7gEFWizqo83IcBGkCBk93mr6I5scYRYhaSgt_MlgpJENfCeALCeyG5TRJnCTPRxo&usqp=CAU" id="ball_2" class="ball">
+  </div>
+  <!--img src="https://en.js.cx/clipart/soccer-gate.svg" id="gate" -->
+  <div id="caja_3" style="height: 100px;  border:1px solid black;" class="droppable">
+    <!--img src="https://en.js.cx/clipart/ball.svg" id="ball_3" class="ball"-->
+    <div id="ball_3" caja="3">
+      <form>
+        <input type="text" name="">
+        <button>enviar</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let currentDroppable = null;
+
+    /*$("div").mousedown(function(){
+      $(this).after("<p style='color:purple;'>Mouse button pressed down.</p>");
+    });*/
+    var ball = document.getElementById('ball_3');
+    var x_=0
+    var y_=0;
+    var llave=true;
+    ball.onmousedown = function(event) {
+      //let base="caja_"+(ball.id).slice((ball.id).indexOf("_")+1);
+      //let aux_base = "";
+
+      if(llave)
+      {
+        //x_=event.clientX;
+        //y_=event.clientY;
+        //aux_base = $("#"+base).html();
+        llave=false;
+      }
+
+
+      let shiftX = event.clientX - ball.getBoundingClientRect().left;
+      let shiftY = event.clientY - ball.getBoundingClientRect().top;
+
+      ball.style.position = 'absolute';
+      ball.style.zIndex = 1000;
+      document.body.append(ball);
+
+      moveAt(event.pageX, event.pageY);
+
+      function moveAt(pageX, pageY) {
+        ball.style.left = pageX - shiftX + 'px';
+        ball.style.top = pageY - shiftY + 'px';
+      }
+
+      function onMouseMove(event) {
+        moveAt(event.pageX, event.pageY);
+
+        ball.hidden = true;
+        let elemBelow = document.elementFromPoint(event.clientX, event.clientY);
+        ball.hidden = false;
+
+        if (!elemBelow) return;
+
+        let droppableBelow = elemBelow.closest('.droppable');
+        if (currentDroppable != droppableBelow) {
+          if (currentDroppable) { // null si no estábamos sobre un receptor (droppable) antes de este evento
+            leaveDroppable(currentDroppable,ball.id);
+          }
+          currentDroppable = droppableBelow;
+          if (currentDroppable) { // null si no estamos sobre un receptor ahora
+            // (pudo haber dejado el receptor recién)
+            enterDroppable(currentDroppable,ball.id);
+          }
+        }
+      }
+
+      document.addEventListener('mousemove', onMouseMove);
+
+      ball.onmouseup = function() {
+        document.removeEventListener('mousemove', onMouseMove);
+        ball.onmouseup = null;
+        
+        let base="caja_"+$("#"+ball.id).attr("caja");
+
+        console.log("========= **"+base+"** ===> "+currentDroppable.id);
+        
+        ball.style.position = 'relative';
+        //ball.style.zIndex = 1000;
+        ball.style.left = '0px';
+        ball.style.top = '0px';
+        
+
+        if (confirm("Deseas cambiar") == false) 
+        {          
+          
+          $("#"+base).html(ball);
+        }
+        else
+        {
+          let aux = $("#"+currentDroppable.id).html();
+          $("#"+base).empty();
+          //$("#"+ball.id).remove();
+          $("#"+currentDroppable.id).html(ball);
+          $("#"+base).html(aux);
+          
+          $("#"+ball.id).attr("caja",(currentDroppable.id).slice((currentDroppable.id).indexOf("_")+1))          
+        }
+
+        
+      };
+
+    };
+
+    function enterDroppable(elem,aqui) {
+      elem.style.background = 'pink';
+      //console.log(aqui+" => "+elem.id);
+    }
+
+    function leaveDroppable(elem,aqui) {
+      elem.style.background = '';
+      //console.log("solto "+aqui+" => "+elem.id);
+    }
+
+    ball.ondragstart = function() {      
+      return false;
+    };
+  </script>
+
+
+</body>
+</html>
