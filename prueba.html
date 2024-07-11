@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.slim.min.js"></script>
+</head>
+<style type="text/css">
+  #gate {
+    cursor: pointer;
+    margin-bottom: 100px;
+    width: 83px;
+    height: 46px;
+  }
+
+  .ball {
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+  }
+</style>
+<body>
+
+  <p>Drag the ball.</p>
+
+  <div id="caja_1" style="height: 100px;  border:1px solid black;" class="droppable">
+    <div class="cajita" caja="1" codigo="100" onmousedown="mouseDown(this)">
+      <form>
+        <input type="text" name="">
+        <button class="btn btn-danger">uno</button>
+      </form>
+    </div>
+  </div>
+  <div id="caja_2" style="height: 100px;  border:1px solid black;" class="droppable">
+     <div class="cajita" caja="2" codigo="200" onmousedown="mouseDown(this)">
+      <form>
+        <input type="text" name="">
+        <button class="btn btn-primary">dos</button>
+      </form>
+    </div>
+  </div>
+  <!--img src="https://en.js.cx/clipart/soccer-gate.svg" id="gate" -->
+  <div id="caja_4" style="height: 100px;  border:1px solid black;" class="droppable">
+    <!--img src="https://en.js.cx/clipart/ball.svg" id="ball_3" class="ball"-->
+    <div class="cajita" caja="4" codigo="300" onmousedown="mouseDown(this)">
+      <form>
+        <input type="text" name="">
+        <button>tres</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    
+    let currentDroppable = null;
+
+    /*$("div").mousedown(function(){
+      $(this).after("<p style='color:purple;'>Mouse button pressed down.</p>");
+    });*/
+    //var ball = document.getElementById('ball_3');
+   
+
+    function mouseDown(ball)
+    {
+      //ball.onmousedown = function(event) 
+      //{        
+
+        let shiftX = event.clientX - ball.getBoundingClientRect().left;
+        let shiftY = event.clientY - ball.getBoundingClientRect().top;
+
+        ball.style.position = 'absolute';
+        ball.style.zIndex = 1000;
+        document.body.append(ball);
+
+        moveAt(event.pageX, event.pageY);
+
+        function moveAt(pageX, pageY) 
+        {
+          ball.style.left = pageX - shiftX + 'px';
+          ball.style.top = pageY - shiftY + 'px';
+        }
+
+        function onMouseMove(event) 
+        {
+          moveAt(event.pageX, event.pageY);
+
+          ball.hidden = true;
+          let elemBelow = document.elementFromPoint(event.clientX, event.clientY);
+          ball.hidden = false;
+
+          if (!elemBelow) return;
+
+          let droppableBelow = elemBelow.closest('.droppable');
+          if (currentDroppable != droppableBelow) {
+            if (currentDroppable) { // null si no estábamos sobre un receptor (droppable) antes de este evento
+              leaveDroppable(currentDroppable,ball.id);
+            }
+            currentDroppable = droppableBelow;
+            if (currentDroppable) { // null si no estamos sobre un receptor ahora
+              // (pudo haber dejado el receptor recién)
+              enterDroppable(currentDroppable,ball.id);
+            }
+          }
+        }
+
+        document.addEventListener('mousemove', onMouseMove);
+
+        ball.onmouseup = function() 
+        {
+          document.removeEventListener('mousemove', onMouseMove);
+          ball.onmouseup = null;
+          
+          let base="caja_"+$(this).attr("caja");
+
+          console.log("========= **"+base+"** ===> "+currentDroppable.id);        
+
+          ball.style.position = 'relative';
+          //ball.style.zIndex = 1000;
+          ball.style.left = '0px';
+          ball.style.top = '0px';
+          //$("#"+base).html(ball);
+
+          if (confirm("Deseas cambiar") == false) 
+          {                    
+            $("#"+base).html(ball);
+          }
+          else
+          {
+            let num_destino = $("#"+currentDroppable.id+" > .cajita").attr("caja");
+            let cod_destino = $("#"+currentDroppable.id+" > .cajita").attr("codigo");
+            let num_origen = $(ball).attr("caja");
+            let cod_origin = $(ball).attr("codigo");
+
+
+            $("#"+currentDroppable.id+" > .cajita").attr("caja",num_origen);//cambiamos de número al destino con el origen
+            let aux = $(currentDroppable).html();
+      
+            $(ball).attr("caja",num_destino);//cambiamos de número de origen con el destino
+            $(currentDroppable).html(ball);
+
+            $("#"+base).html(aux);          
+            //$("#"+currentDroppable.id).attr("caja","3");
+
+            //actualizar 
+          }
+          
+          ball.ondragstart = function() {      
+            return false;
+          };          
+        };
+
+      //};
+
+    }
+
+    function enterDroppable(elem,aqui) {
+      elem.style.background = 'pink';
+      //console.log(aqui+" => "+elem.id);
+    }
+
+    function leaveDroppable(elem,aqui) {
+      elem.style.background = '';
+      //console.log("solto "+aqui+" => "+elem.id);
+    }
+
+    /*ball.ondragstart = function() {      
+      return false;
+    };*/
+  </script>
+
+
+</body>
+</html>
